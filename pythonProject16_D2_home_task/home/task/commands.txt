@@ -1,0 +1,65 @@
+>>> from task.models import *
+# Создание юзеров
+>>> u1=User.objects.create_user('Vadim')
+>>> u2=User.objects.create_user('Dima')
+>>> u1.save()
+>>> u2.save()
+>>> print(u1,u2)
+Vadim Dima
+# Создание авторов
+>>> a1=Autor.objects.create(autorUser=u1)
+>>> a2=Autor.objects.create(autorUser=u2)
+# Создание категорий
+>>> c1=Category.objects.create(name='политика')
+>>> c2=Category.objects.create(name='спорт')
+>>> c3=Category.objects.create(name='погода')
+>>> c4=Category.objects.create(name='в стране')
+# Создание постов ( 2-х статей и одной новости )
+>>> p1=Post.objects.create(autor=a1, categoryType='NW', title='событие', text='сегодня выпал снег')
+>>> p2=Post.objects.create(autor=a2, categoryType='AR', title='Шустрый кот', text='кот поймал мышь')
+>>> p3=Post.objects.create(autor=a2, categoryType='AR', title='8-800', text='звони бесплатно')
+# Добавление в посты  категорий
+>>> p1.postCategory.add(c3)
+>>> p1.postCategory.add(c4)
+>>> p2.postCategory.add(c4)
+>>> p2.postCategory.add(c2)
+>>> p3.postCategory.add(c4)
+# Создание комментариев к постам
+>>> com1=Comment.objects.create(commentPost=p1, commentUser=u1, text='скоро будет холодно')
+>>> com2=Comment.objects.create(commentPost=p1, commentUser=u2, text='снег к обеду расстаял')
+>>> com3=Comment.objects.create(commentPost=p3, commentUser=u2, text='как всегда обманут )))')
+>>> com4=Comment.objects.create(commentPost=p3, commentUser=u1, text='а может и не обманут')
+# Работа с рейтингами
+>>> com1.rating=5
+>>> com1.like()
+>>> com4.rating=4
+>>> com4.dislike()
+>>> com2.like()
+>>> com3.dislike()
+>>> p1.rating=4
+>>> p1.dislike()
+>>> p3.rating=7
+>>> p3.like()
+# Обновление рейтингов
+>>> a1.update_rating()
+>>> a1.ratingAutor
+18
+>>> a2.update_rating()
+>>> a2.ratingAutor
+24
+# Вывод username и рейтинг лучшего пользователя
+>>> s=Autor.objects.all().order_by('-ratingAutor').values('autorUser','ratingAutor')
+>>> s
+>>> s[0]
+# Вывод лучшей статьи
+>>> sp=Post.objects.all().order_by('-rating') .values('dateCreation','autor','title','rating')
+>>> sp[0]
+# Еще вариант
+>>> sp=Post.objects.all().order_by('-rating')
+>>> sp[0].dateCreation
+>>> sp[0]. autor
+>>> sp[0]. title
+>>> sp[0]. rating
+# Вывод всех комментариев (дата, пользователь, рейтинг, текст) к лучшей статье
+>>> sp=Post.objects.all().order_by('-rating')
+>>> Comment.objects.filter(commentPost=sp[0]).values('dateCreation','commentUser','rating','text')
